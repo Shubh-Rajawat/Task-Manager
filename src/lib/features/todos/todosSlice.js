@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-let tasks = JSON.parse( localStorage.getItem( 'entities' ) )
+let tasks = localStorage.getItem( 'entities' )
 const initialState = {
-    entities: tasks ?? [],
+    entities: JSON.parse( tasks ) ?? [],
     status: null
 }
 
@@ -11,11 +11,21 @@ const todosSlice = createSlice( {
     reducers: {
         todoAdded( state, action ) {
             state.entities.push( action.payload )
-            // console.log( "from redux", tasks, state.entities )
+            localStorage.setItem( 'entities', JSON.stringify( [ ...state.entities ] ) );
+        },
+        todoClear( state, action ) {
+            state.entities = JSON.parse( localStorage.getItem( 'entities' ) ) ?? []
+            localStorage.setItem( 'entities', JSON.stringify( [ ...state.entities ] ) );
+        },
+        todoDelete( state, action ) {
+            state.entities = state.entities.filter( ( el, index ) => {
+                return index != action.payload
+            } )
             localStorage.setItem( 'entities', JSON.stringify( [ ...state.entities ] ) );
         },
         todoEdit( state, action ) {
-            state.entities.push( action.payload )
+            state.entities = action.payload
+            localStorage.setItem( 'entities', JSON.stringify( [ ...state.entities ] ) );
             console.log( "from redux", state.entities, action.payload )
         },
         todoToggled( state, action ) {
@@ -31,6 +41,6 @@ const todosSlice = createSlice( {
     }
 } )
 
-export const { todoAdded, todoToggled, todosLoading } = todosSlice.actions
+export const { todoAdded, todoToggled, todosLoading, todoClear, todoEdit, todoDelete } = todosSlice.actions
 const todoReducer = todosSlice.reducer;
 export default todoReducer
